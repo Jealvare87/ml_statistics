@@ -7,7 +7,7 @@ import pandas as pnd
 import math
 
 #--------------------------------------------
-# FUNCIONES
+# FUNCTIONS
 #--------------------------------------------
 
 def calcminmax(observaciones):
@@ -81,7 +81,7 @@ def calcularCuartiles(observaciones, n):
 
 
 #--------------------------------------------
-# APLICACION
+# APLICATION
 #--------------------------------------------
 
 observaciones = pnd.DataFrame({"NOTAS": np.array([3, 19, 10, 15, 14, 12, 9, 8, 11, 12, 11, 12, 13, 11, 14, 16])})
