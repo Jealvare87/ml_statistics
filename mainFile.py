@@ -4,7 +4,7 @@
 
 import numpy as np
 import pandas as pnd
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import math
 
 
@@ -108,6 +108,38 @@ def calc_turkey_criteria(observations, q1, q3):
 
     return limit_values
 
+
+def visualize(observations, average, median, q1, q2, q3):
+    # Average
+    plt.subplot(2, 2, 1)
+    plt.hist(observations)
+    plt.title("Histogram an average")
+    plt.axvline(average, color="red", linestyle="dashed", linewidth=1, label=str(average))
+    plt.legend(loc="upper right")
+
+    # Median
+    plt.subplot(2, 2, 2)
+    plt.hist(observations)
+    plt.title("Histogram an median")
+    plt.axvline(median, color="green", linestyle="dashed", linewidth=1, label=str(median))
+    plt.legend(loc="upper right")
+
+    # Quartiles
+    plt.subplot(2, 2, 3)
+    plt.hist(observations)
+    plt.title("Histogram and quartiles")
+    plt.axvline(q1, color="orange", linestyle="dashed", linewidth=1, label="Q1: " + str(q1))
+    plt.axvline(q2, color="orange", linestyle="dashed", linewidth=1, label="Q2: " + str(q2))
+    plt.axvline(q3, color="orange", linestyle="dashed", linewidth=1, label="Q3: " + str(q3))
+    plt.legend(loc="upper right")
+
+    # Diagram
+    plt.subplot(2, 2, 4)
+    plt.boxplot(observations)
+    plt.title("Box-and-whisker diagram")
+    plt.show()
+
+
 # --------------------------------------------
 # APPLICATION
 # --------------------------------------------
@@ -145,3 +177,5 @@ print("50% of the observations have a grade around " + str(quart[1]))
 print("75% of the observations have a grade lower than " + str(quart[2]))
 print("The grades of the lowest 25% differ from those of the highest 25% by " + str(quart[2] - quart[0]) + " points")
 print("Turkey values are " + str(turkey))
+
+visualize(obs, avg, mdn, quart[0], quart[1], quart[2])
