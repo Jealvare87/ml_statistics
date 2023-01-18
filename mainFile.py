@@ -4,6 +4,7 @@
 
 import numpy as np
 import pandas as pnd
+import matplotlib as plt
 import math
 
 
@@ -11,50 +12,50 @@ import math
 # FUNCTIONS
 # --------------------------------------------
 
-def calcminmax(observaciones):
-    lista_ordenada = observaciones.sort_values(by="NOTAS", axis=0)
-    lista_ordenada = lista_ordenada.reset_index(drop=True)
-    return lista_ordenada['NOTAS'][0], lista_ordenada['NOTAS'][len(lista_ordenada) - 1]
+def calc_minimum_maximum(observations):
+    sorted_list = observations.sort_values(by="NOTAS", axis=0)
+    sorted_list = sorted_list.reset_index(drop=True)
+    return sorted_list['NOTAS'][0], sorted_list['NOTAS'][len(sorted_list) - 1]
 
 
-def mediaAritmetica(observaciones):
-    valores = observaciones['NOTAS']
-    n = valores.count()
-    media = 0
+def arithmetic_average(observations):
+    values = observations['NOTAS']
+    n = values.count()
+    average, total_avg = 0, 0
 
     if n > 0:
-        for val in valores:
-            media += val
-        media = media / n
+        for val in values:
+            average += val
+        total_avg = average / n
 
-    return media
+    return total_avg
 
 
-def medianaDatos(observaciones):
-    lista_ordenada = observaciones.sort_values(by="NOTAS", axis=0)
-    lista_ordenada = lista_ordenada.reset_index(drop=True)
-    n = observaciones['NOTAS'].count()
-    mitad = math.trunc(n / 2) - 1
+def calc_median(observations):
+    sorted_list = observations.sort_values(by="NOTAS", axis=0)
+    sorted_list = sorted_list.reset_index(drop=True)
+    n = observations['NOTAS'].count()
+    half = math.trunc(n / 2) - 1
 
     if n % 2 == 1:
-        mitad += 1
-        return lista_ordenada['NOTAS'][mitad]
+        half += 1
+        return sorted_list['NOTAS'][half]
     else:
-        desfase = lista_ordenada['NOTAS'][mitad + 1] - lista_ordenada['NOTAS'][mitad]
-        mediana = lista_ordenada['NOTAS'][mitad] + desfase
-        return mediana
+        offset = sorted_list['NOTAS'][half + 1] - sorted_list['NOTAS'][half]
+        median = sorted_list['NOTAS'][half] + offset
+        return median
 
 
-def counterModa(observaciones):
-    valores = observaciones['NOTAS']
+def count_mode(observations):
+    values = observations['NOTAS']
     dictionary = {}
     s_dictionary = {}
     # Initialize
-    for val in valores:
+    for val in values:
         dictionary[val] = 0
 
     # Count
-    for val in valores:
+    for val in values:
         if val in dictionary:
             dictionary[val] += 1
 
@@ -65,64 +66,82 @@ def counterModa(observaciones):
     return s_dictionary
 
 
-def calVarianza(observaciones, n, media):
-    varianza = 0
-    valores = observaciones['NOTAS']
-    for val in valores:
-        varianza += (val - media) ** 2
-    return varianza / (n - 1)
+def calc_variance(observations, n, average):
+    variance = 0
+    values = observations['NOTAS']
+    for val in values:
+        variance += (val - average) ** 2
+    return variance / (n - 1)
 
 
-def calcularCuartiles(observaciones, n):
-    Q1, Q2, Q3 = round(n / 4) - 1, round(n / 2) - 1, round((n * 3) / 4) - 1
-    valoresOrdenados = observaciones.sort_values(by=['NOTAS'], axis=0)
-    valoresOrdenados = valoresOrdenados.reset_index(drop=True)
-    valores = list(valoresOrdenados['NOTAS'])
+def calc_quartiles(observations, n):
+    q1, q2, q3 = round(n / 4) - 1, round(n / 2) - 1, round((n * 3) / 4) - 1
+    sorted_values = observations.sort_values(by=['NOTAS'], axis=0)
+    sorted_values = sorted_values.reset_index(drop=True)
+    values = list(sorted_values['NOTAS'])
 
-    valQ1 = (valores[Q1] + ((valores[Q1 + 1] - valores[Q1]) / 2) + valores[Q1 + 1]) / 2 if Q1 % 2 == 1 else valores[Q1]
-    valQ2 = (valores[Q2] + ((valores[Q2 + 1] - valores[Q2]) / 2) + valores[Q2 + 1]) / 2 if Q2 % 2 == 1 else valores[Q2]
-    valQ3 = (valores[Q3] + ((valores[Q3 + 1] - valores[Q3]) / 2) + valores[Q3 + 1]) / 2 if Q3 % 2 == 1 else valores[Q3]
+    val_q1 = (values[q1] + ((values[q1 + 1] - values[q1]) / 2) + values[q1 + 1]) / 2 if q1 % 2 == 1 else values[q1]
+    val_q2 = (values[q2] + ((values[q2 + 1] - values[q2]) / 2) + values[q2 + 1]) / 2 if q2 % 2 == 1 else values[q2]
+    val_q3 = (values[q3] + ((values[q3 + 1] - values[q3]) / 2) + values[q3 + 1]) / 2 if q3 % 2 == 1 else values[q3]
 
-    return valQ1, valQ2, valQ3
+    return val_q1, val_q2, val_q3
 
+
+def calc_turkey_criteria(observations, q1, q3):
+    lower_limit_values = []
+    upper_limit_values = []
+    observ = observations.sort_values(by=['NOTAS'], axis=0)
+    inter_quartile = q3 - q1
+
+    lower_limit = q1 - (1.5 * inter_quartile)
+    upper_limit = q3 + (1.5 * inter_quartile)
+
+    for value in np.nditer(observ.values):
+        # turn 2-D array to 1-D by first element
+        value = value.flat[0]
+        if value < lower_limit:
+            lower_limit_values.append(value)
+        if value > upper_limit:
+            upper_limit_values.append(value)
+
+    limit_values = lower_limit_values + upper_limit_values
+
+    return limit_values
 
 # --------------------------------------------
-# APLICATION
+# APPLICATION
 # --------------------------------------------
 
-observaciones = pnd.DataFrame({"NOTAS": np.array([3, 19, 10, 15, 14, 12, 9, 8, 11, 12, 11, 12, 13, 11, 14, 16])})
-caracteristicas = observaciones.count()
-print(str(observaciones))
-print("Caracteristicas = " + str(caracteristicas))
-min, max = calcminmax(observaciones)
 
-print("MIN " + str(min))
-print("MAX " + str(max))
-
-print("Rango " + str(max - min))
-
-media = mediaAritmetica(observaciones)
-
-print("Media aritmetica " + str(media))
-
-mediana = medianaDatos(observaciones)
-
-print("Mediana " + str(mediana))
-
-moda_ordenada = counterModa(observaciones)
-first_element = list(moda_ordenada.values())[0]
+obs = pnd.DataFrame({"NOTAS": np.array([3, 19, 10, 15, 14, 12, 9, 8, 11, 12, 11, 12, 13, 11, 14, 16])})
+features = obs.size
+minimum, maximum = calc_minimum_maximum(obs)
+avg = arithmetic_average(obs)
+mdn = calc_median(obs)
+sorted_mode = count_mode(obs)
+first_element = list(sorted_mode.values())[0]
 # result = dict(((v, k) for k in mydict for v in mydict[k] if v in required))
-moda_lista = list(k for k in list(moda_ordenada.keys()) if moda_ordenada.get(k) == first_element)
-print('MODA ' + str(moda_lista))
+list_mode = list(k for k in list(sorted_mode.keys()) if sorted_mode.get(k) == first_element)
+var = calc_variance(obs, features, avg)
+average_deviation = math.sqrt(var)
+quart = calc_quartiles(obs, int(features))
+turkey = calc_turkey_criteria(obs, quart[0], quart[2])
 
-varianza = calVarianza(observaciones, caracteristicas, media)
-print('Varianza ' + str(varianza))
-
-desv_tipica = math.sqrt(varianza)
-
-print('Desv. Tipica ' + str(round(desv_tipica, 2)))
-quart = calcularCuartiles(observaciones, int(caracteristicas))
-print("El 25% de las observaciones tiene una nota inferior a " + str(quart[0]))
-print("El 50% de las observaciones tiene una nota alrededor de " + str(quart[1]))
-print("El 75% de las observaciones tiene una nota inferior a " + str(quart[2]))
-print("Las notas del 25% más bajas se diferencias de las del 25% más altas por " + str(quart[2] - quart[0]) + " puntos")
+# Print results
+print(str(obs))
+print("-----------------------------")
+print("Count    = " + str(features))
+print("Min      = " + str(minimum))
+print("Max      = " + str(maximum))
+print("Range    = " + str(maximum - minimum))
+print("Average  = " + str(avg))
+print("Median   = " + str(mdn))
+print('Mode     = ' + str(list_mode))
+print('Variance = ' + str(var))
+print('Dev.     = ' + str(round(average_deviation, 2)))
+print("-----------------------------")
+print("25% of the observations have a grade lower than " + str(quart[0]))
+print("50% of the observations have a grade around " + str(quart[1]))
+print("75% of the observations have a grade lower than " + str(quart[2]))
+print("The grades of the lowest 25% differ from those of the highest 25% by " + str(quart[2] - quart[0]) + " points")
+print("Turkey values are " + str(turkey))
